@@ -13,7 +13,7 @@ p6_jc_app_create() {
     local dir=$(p6_transient_create "tmp.jc")
     local key_file="$dir/${account_id}.key"
 
-    p6_openssl_genrsa  "$key_file" "$cert_bits"
+    p6_openssl_genrsa "$key_file" "$cert_bits"
     local crt_file="$dir/${account_id}.crt"
 
     p6_openssl_req_509 "$key_file" "$crt_file" "$cert_exp" "$cert_subject"
