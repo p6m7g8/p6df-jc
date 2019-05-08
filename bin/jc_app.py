@@ -24,6 +24,7 @@ import getpass
 import json
 import os
 import sys
+import time
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -35,16 +36,18 @@ def login(args):
     passwd = getpass.getpass()
 
     browser = webdriver.Chrome()
-    browser.get('https://console.jumpcloud.com/login')
 
-    browser.find_element_by_xpath("/html/body/div/div/div[2]/div/div/div[2]/div[2]").click()
+    browser.get('https://console.jumpcloud.com/login')
+    browser.find_element_by_xpath("/html/body/div/section/button/span").click()
+    time.sleep(1)
 
     email = browser.find_element_by_name("email");
     password = browser.find_element_by_name("password");
     email.send_keys(args["--login"])
     password.send_keys(passwd)
 
-    browser.find_element_by_xpath("/html/body/div/div/div[2]/div/div/form/button").click()
+    browser.find_element_by_xpath("/html/body/div/section/div[1]/div/div/form/button/span").click()
+    time.sleep(2)
 
     return browser
 
@@ -53,58 +56,79 @@ def goto_applications(browser):
     """
 
     browser.get('https://console.jumpcloud.com/#/applications')
+    time.sleep(3)
+
+    return
 
 def add_application(browser, args):
+    """
+    """
 
-    role_name = args["--role_path"].split("/")[-1]
+    # Add(+)
+    browser.find_element_by_xpath("/html/body/main/div[1]/div[2]/div/a/i").click()
+    time.sleep(1)
 
-    # add
-    browser.implicitly_wait(3)
-    browser.find_element_by_xpath("/html/body/main/div/div[2]/div/a").click()
+    # AWS(configure)
+    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[4]/div[10]/a").click()
+    time.sleep(1)
 
-    # aws
-    browser.implicitly_wait(3)
-    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[4]/div[8]/a").click()
-
-    # key and cert
-    browser.implicitly_wait(3)
-    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[1]/div[1]/div/input").send_keys(args["--key"])
-    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[1]/div[2]/div/input").send_keys(args["--crt"])
-
-    role_session_name = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[1]/div[3]/div/div/div[2]/div[2]/div[2]/input")
-    role_session_name.clear()
-    role_session_name.send_keys(role_name)
-
-    role=browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[1]/div[3]/div/div/div[2]/div[2]/div[2]/input")
-    role.clear()
-    role.send_keys("arn:aws:iam::{}:role/{},arn:aws:iam::{}:saml-provider/{}".format(args["--account_id"], args["--role_path"], args["--account_id"], args["--provider"]))
-
-    idp_url = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[2]/div/div/input")
-    idp_url.clear()
-    idp_url.send_keys("aws-{}".format(args["--account_alias"]))
-
-    display_label = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div/div/input")
+    # Display Label
+    display_label = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[1]/div/div/input")
     display_label.clear()
     display_label.send_keys("AWS {}".format(args["--account_alias"]))
 
-    # save
-    browser.find_element_by_xpath("/html/body/aside/div/div[3]/button").click()
+    # Key and Cert
+    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[1]/div/input").send_keys(args["--key"])
+    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[2]/div/input").send_keys(args["--crt"])
 
-    # confirm
-    browser.find_element_by_xpath("/html/body/div[5]/div/div/div[3]/a[2]").click()
+    # Role
+    role = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div[2]/div[2]/div[2]/input")
+    role.clear()
+    role.send_keys("arn:aws:iam::{}:role/{},arn:aws:iam::{}:saml-provider/{}".format(args["--account_id"], args["--role_path"], args["--account_id"], args["--provider"]))
+
+    # RoleSessionName
+    browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[3]/div/div/a").click()
+
+    att_name = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/div[2]/div[3]/div[1]/input")
+    att_name.send_keys("https://aws.amazon.com/SAML/Attributes/RoleSessionName")
+
+    att_val = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/div[2]/div[3]/div[2]/input")
+    att_val.send_keys("SSO-User")
+
+    # IDP URL
+    idp_url = browser.find_element_by_xpath("/html/body/aside/div/div[2]/div/div[2]/div[4]/div/div/input")
+    idp_url.clear()
+    idp_url.send_keys("aws-{}".format(args["--account_alias"]))
+
+    # Activate
+    browser.find_element_by_xpath("/html/body/aside/div/div[3]/button").click()
+    time.sleep(1)
+
+    # Confirm
+    browser.find_element_by_xpath("/html/body/div[8]/div/div/div[3]/a[2]").click()
+    time.sleep(1)
+
+    return
 
 def download_saml_metadata_xml(browser, args):
     """
     """
 
     goto_applications(browser)
-    browser.implicitly_wait(5)
 
-    browser.find_element_by_xpath("/html/body/main/div/div[4]/div[{}]/a[1]".format(args["--pos"])).click()
-    browser.implicitly_wait(5)
+    # Application
+    browser.find_element_by_xpath("/html/body/main/div/div[4]/div[{}]/a[1]".format(args["--pos"]+2)).click()
+    time.sleep(1)
 
-    import time
-    time.sleep(2)
+    # Export Metadata
+    browser.find_element_by_xpath("/html/body/aside/div/div[3]/a[1]").click()
+    time.sleep(1)
+
+    # XXX: MacOS
+    home = os.path.expanduser("~")
+    os.rename("{}/Downloads/JumpCloud-aws-metadata.xml".format(home), "/tmp/{}-AWS-JumpCloud.xml".format(args["--account_alias"]))
+
+    return
 
 def account_map_get(args):
     """
@@ -143,17 +167,28 @@ def main(args):
     """
     """
 
+    # logic
     args["--account_alias"] = aws_account_id_to_name(args)
     args["--pos"] = account_ord(args)
 
+    # init
     browser = login(args)
+
+    # /applications
     goto_applications(browser)
 
+    # Add IDP
     add_application(browser, args)
 
+    # Download SAML
     download_saml_metadata_xml(browser, args)
 
-    print("~/Downloads/{}-aws-metadata.xml".format(args["--provider"]))
+    # Quit Driver
+    browser.quit()
+
+    print("/tmp/{}-AWS-JumpCloud.xml".format(args["--account_alias"]))
+
+    return
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, options_first=True, version="0.0.1")
