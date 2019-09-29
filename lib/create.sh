@@ -1,3 +1,24 @@
+######################################################################
+#<
+#
+# Function:
+#     str = p6_jc_app_create(org, account_id, cert_subject, cert_bits, cert_exp, saml_provider, saml_provider_email, role_full_path)
+#
+# Arg(s):
+#    org - 
+#    account_id - 
+#    cert_subject - 
+#    cert_bits - 
+#    cert_exp - 
+#    saml_provider - 
+#    saml_provider_email - 
+#    role_full_path - 
+#
+# Return(s):
+#     - 
+#
+#>
+######################################################################
 p6_jc_app_create() {
     local org="$1"
     local account_id="$2"
