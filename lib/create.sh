@@ -2,20 +2,20 @@
 #<
 #
 # Function:
-#     str = p6_jc_app_create(org, account_id, cert_subject, cert_bits, cert_exp, saml_provider, saml_provider_email, role_full_path)
+#	unkown  = p6_jc_app_create(org, account_id, cert_subject, cert_bits, cert_exp, saml_provider, saml_provider_email, role_full_path)
 #
-# Arg(s):
-#    org - 
-#    account_id - 
-#    cert_subject - 
-#    cert_bits - 
-#    cert_exp - 
-#    saml_provider - 
-#    saml_provider_email - 
-#    role_full_path - 
+#  Args:
+#	org -
+#	account_id -
+#	cert_subject -
+#	cert_bits -
+#	cert_exp -
+#	saml_provider -
+#	saml_provider_email -
+#	role_full_path -
 #
-# Return(s):
-#     - 
+#  Returns:
+#	unkown -
 #
 #>
 ######################################################################
@@ -53,5 +53,5 @@ p6_jc_app_create() {
     local dst_saml_file=$dir/${account_id}-${app}-${saml_provider}.xml
     p6_file_move "$saml_file" "$dst_saml_file"
 
-    p6_return $dst_saml_file
+    p6_return_path $dst_saml_file
 }
